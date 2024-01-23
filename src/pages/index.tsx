@@ -60,7 +60,7 @@ const Feed = () => {
 
   if (postsLoading) return <LoadingPage />;
 
-  if (!data) return <div>no data</div>
+  if (!data) return <LoadingPage />;
 
   return(
     <div className="flex flex-col">
@@ -79,7 +79,7 @@ export default function Home() {
 
   if (!userLoaded) return <div />;
 
-  if (!data) return <div>no data</div>
+  if (!data) return <LoadingPage />;
 
   return (
     <>
