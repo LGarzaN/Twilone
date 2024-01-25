@@ -10,6 +10,7 @@ import { useState } from "react";
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
+import toast from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
@@ -23,7 +24,13 @@ const CreatePostWizard = () => {
       void ctx.post.getAll.invalidate();
     },
     onError: (error) => {
-      console.log(error);
+      const errorMsg = error.data?.zodError?.fieldErrors.content;
+      if (errorMsg?.[0]) {
+        toast.error(errorMsg[0]);
+      }
+      else{
+        toast.error("Something went wrong");
+      }
     },
   });
 
@@ -46,15 +53,20 @@ const CreatePostWizard = () => {
       className="bg-transparent px-2 grow outline-none"
       value={input}
       onChange={(e) => setInput(e.target.value)}/>
-      <button
-      className="bg-slate-600 text-white px-4 py-2 rounded-lg"
+      {!isLoading && <div className="flex justify-center items-center"><button
+      className=" text-white px-2 py-1.5 h-1/2 rounded-lg items-center"
       disabled={isLoading}
       onClick={async () => {
+        if (!input){
+          toast.error("Please enter something");
+          return;
+        };
         await mutateAsync({content: input});
       }}
       >
-        {isLoading ? <LoadingSpinner size={30} /> : "Post"}
-      </button>
+        Post
+      </button> </div>}
+      {isLoading && <div className="flex items-center justify-center"><LoadingSpinner size={25}/></div>}
   </div>
 }
 
@@ -68,9 +80,9 @@ const PostView = (props: PostWithUser) => {
       </div>
       <div className="flex flex-col">
         <div>
-          <span className="text-sm text-slate-100">@{author.username}</span> 
+          <Link href={`/@${author.username}`}><span className="text-sm text-slate-100">@{author.username}</span></Link>
           <span className="text-sm text-slate-400">{"  ·  "}</span> 
-          <span className="text-sm text-slate-400">{dayjs(post.createdAt).fromNow()}</span>
+          <Link href={`/post/${post.id}`}><span className="text-sm text-slate-400">{dayjs(post.createdAt).fromNow()}</span></Link>
         </div>
         <div>
           <span className="text-lg">{post.content}</span> 
